@@ -1,12 +1,14 @@
 PASSWORD = "Qwerty!123"
 
 
+# Регистрирует пользователя и возвращает заголовки с его токеном.
 def login_as(client, login):
     client.post("/api/register", json={"login": login, "password": PASSWORD})
     r = client.post("/api/login", json={"login": login, "password": PASSWORD})
     return {"Authorization": "Bearer " + r.json()["access_token"]}
 
 
+# alice - владелец ресурса, bob получает права, eve - посторонний пользователь.
 def test_access_allowed_after_grant(client):
     alice = login_as(client, "alice")
     bob = login_as(client, "bob")
@@ -45,5 +47,6 @@ def test_only_owner_can_grant(client):
     login_as(client, "eve")
     rid = client.post("/api/resources", json={"title": "doc"}, headers=alice).json()["id"]
 
+    # bob не владелец, поэтому не может выдать права eve.
     r = client.post(f"/api/resources/{rid}/permissions", json={"login": "eve", "can_read": True}, headers=bob)
     assert r.status_code == 403

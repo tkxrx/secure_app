@@ -7,9 +7,11 @@ def test_register_ok(client):
     assert r.status_code == 201
     assert r.json() == {"message": "user создан"}
 
+    # Хеш проверяется напрямую в БД, мимо API.
     db = SessionLocal()
     user = db.query(User).filter(User.login == "alice").first()
     db.close()
+    # В БД лежит argon2id-хеш, а не пароль.
     assert user.password_hash.startswith("$argon2id$")
     assert "Qwerty!123" not in user.password_hash
 

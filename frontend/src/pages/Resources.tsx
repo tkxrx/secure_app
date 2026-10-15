@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { request } from '../api'
 
+// Права приходят с сервера, клиент их только показывает.
 type Rights = { read: boolean; update: boolean; delete: boolean }
+// content есть только в ответе GET /api/resources/{id}, в списке его нет.
 type Resource = { id: number; title: string; owner: string; rights: Rights; content?: string }
 
+// Права в виде строки для колонки «Мои права».
 function rightsText(r: Rights) {
   const list = []
   if (r.read) list.push('чтение')
@@ -14,10 +17,14 @@ function rightsText(r: Rights) {
 
 export default function Resources() {
   const [resources, setResources] = useState<Resource[]>([])
+  // Открытый ресурс с содержимым; null - ничего не открыто.
   const [selected, setSelected] = useState<Resource | null>(null)
+  // Поля формы создания ресурса.
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  // Редактируемое содержимое открытого ресурса.
   const [editText, setEditText] = useState('')
+  // Форма выдачи прав: кому и какие права.
   const [grantLogin, setGrantLogin] = useState('')
   const [canRead, setCanRead] = useState(true)
   const [canUpdate, setCanUpdate] = useState(false)
@@ -25,6 +32,7 @@ export default function Resources() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
+  // Логин текущего пользователя: форма выдачи прав показывается только владельцу ресурса.
   const me = localStorage.getItem('login')
 
   async function load() {
@@ -35,6 +43,7 @@ export default function Resources() {
     }
   }
 
+  // Список загружается один раз при открытии страницы.
   useEffect(() => {
     load()
   }, [])
@@ -46,6 +55,7 @@ export default function Resources() {
 
   async function open(id: number) {
     clear()
+    // Сбрасываем выбранный ресурс, чтобы при ошибке (403) не остался открытым предыдущий.
     setSelected(null)
     try {
       const data = await request('GET', '/api/resources/' + id)
@@ -56,6 +66,7 @@ export default function Resources() {
     }
   }
 
+  // Создаёт ресурс и перечитывает список.
   async function create(e: React.FormEvent) {
     e.preventDefault()
     clear()
@@ -73,14 +84,17 @@ export default function Resources() {
     if (!selected) return
     clear()
     try {
+      // Отправляется только content, название не меняется.
       const data = await request('PUT', '/api/resources/' + selected.id, { content: editText })
       setMessage(data.message)
+      // Перечитываем ресурс, чтобы показать сохранённое состояние.
       open(selected.id)
     } catch (err: any) {
       setError(err.message)
     }
   }
 
+  // Удаляет открытый ресурс и перечитывает список.
   async function remove() {
     if (!selected) return
     clear()
@@ -99,6 +113,7 @@ export default function Resources() {
     if (!selected) return
     clear()
     try {
+      // Повторная выдача тому же пользователю заменяет его права целиком.
       const data = await request('POST', '/api/resources/' + selected.id + '/permissions', {
         login: grantLogin,
         can_read: canRead,
@@ -112,6 +127,7 @@ export default function Resources() {
     }
   }
 
+  // Проверка стоит после всех хуков, иначе нарушится порядок хуков между рендерами.
   if (!localStorage.getItem('token')) {
     return <p>Сначала войдите в систему.</p>
   }

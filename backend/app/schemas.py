@@ -3,6 +3,7 @@ import re
 from pydantic import BaseModel, field_validator
 
 
+# Политика логина и пароля проверяется только при регистрации.
 class UserCreate(BaseModel):
     login: str
     password: str
@@ -11,6 +12,7 @@ class UserCreate(BaseModel):
     @classmethod
     def check_login(cls, v):
         if len(v) < 3 or len(v) > 32:
+            # Текст ошибки уходит пользователю как есть (см. validation_error_handler в main.py).
             raise ValueError("логин должен быть от 3 до 32 символов")
         if not re.fullmatch(r"[A-Za-z0-9._-]+", v):
             raise ValueError("логин может содержать только латинские буквы, цифры, точку, _ и -")
@@ -27,11 +29,13 @@ class UserCreate(BaseModel):
             raise ValueError("в пароле должна быть строчная буква")
         if not re.search(r"[0-9]", v):
             raise ValueError("в пароле должна быть цифра")
+        # Спецсимвол - любой символ, кроме латинской буквы и цифры.
         if not re.search(r"[^A-Za-z0-9]", v):
             raise ValueError("в пароле должен быть спецсимвол")
         return v
 
 
+# При входе пароль только сверяется с хешем, политика паролей не применяется.
 class LoginData(BaseModel):
     login: str
     password: str
@@ -42,11 +46,13 @@ class ResourceCreate(BaseModel):
     content: str = ""
 
 
+# None = поле не меняется (частичное обновление).
 class ResourceUpdate(BaseModel):
     title: str | None = None
     content: str | None = None
 
 
+# Флаги перезаписываются целиком: отправка false отзывает право.
 class PermissionGrant(BaseModel):
     login: str
     can_read: bool = False

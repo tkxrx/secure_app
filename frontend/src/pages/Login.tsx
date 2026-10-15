@@ -13,8 +13,10 @@ export default function Login() {
     setError('')
     try {
       const data = await request('POST', '/api/login', { login, password })
+      // Токен кладётся в localStorage, его подставляет request() в каждый запрос.
       localStorage.setItem('token', data.access_token)
       localStorage.setItem('login', login)
+      // После входа пользователь попадает на страницу ресурсов.
       navigate('/resources')
     } catch (err: any) {
       setError(err.message)

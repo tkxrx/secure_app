@@ -12,6 +12,7 @@ export default function Register() {
     setMessage('')
     setError('')
     try {
+      // Требования к паролю проверяет backend, текст ошибки выводится под формой.
       const data = await request('POST', '/api/register', { login, password })
       setMessage(data.message)
       setPassword('')

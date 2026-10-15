@@ -5,6 +5,7 @@ import Resources from './pages/Resources'
 
 export default function App() {
   const navigate = useNavigate()
+  // login хранится только для отображения; доступ определяет токен, который проверяет сервер.
   const login = localStorage.getItem('login')
 
   function logout() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/resources" element={<Resources />} />
+        {/* Любой неизвестный путь ведёт на регистрацию. */}
         <Route path="*" element={<Navigate to="/register" />} />
       </Routes>
     </div>

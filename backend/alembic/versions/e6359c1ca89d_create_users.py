@@ -12,6 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = 'e6359c1ca89d'
+# Первая миграция в цепочке.
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

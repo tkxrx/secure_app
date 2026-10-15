@@ -7,4 +7,5 @@ argon2-cffi==25.1.0
 PyJWT==2.14.0
 pydantic-settings==2.16.0
 pytest==9.1.1
+# httpx нужен для fastapi.testclient.
 httpx==0.28.1

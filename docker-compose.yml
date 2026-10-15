@@ -6,7 +6,9 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: secure_app
     volumes:
+      # Именованный том хранит данные Postgres между перезапусками.
       - db_data:/var/lib/postgresql/data
+    # backend стартует только после того, как Postgres начал принимать соединения (condition ниже).
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -15,6 +17,7 @@ services:
   backend:
     build: ./backend
     environment:
+      # Хост db - имя сервиса в сети compose.
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/secure_app
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
       APP_ENV: dev
@@ -24,6 +27,7 @@ services:
       ARGON2_MEMORY_COST: 65536
       ARGON2_PARALLELISM: 2
     ports:
+      # API также доступен напрямую на http://localhost:8000.
       - "8000:8000"
     depends_on:
       db:
@@ -32,6 +36,7 @@ services:
   frontend:
     build: ./frontend
     ports:
+      # Фронт (nginx) на http://localhost:3000, он же проксирует /api на backend.
       - "3000:80"
     depends_on:
       - backend

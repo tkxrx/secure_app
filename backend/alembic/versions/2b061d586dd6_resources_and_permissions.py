@@ -12,6 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = '2b061d586dd6'
+# Применяется после create_users (e6359c1ca89d).
 down_revision: Union[str, None] = 'e6359c1ca89d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
