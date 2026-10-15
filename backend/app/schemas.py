@@ -35,3 +35,20 @@ class UserCreate(BaseModel):
 class LoginData(BaseModel):
     login: str
     password: str
+
+
+class ResourceCreate(BaseModel):
+    title: str
+    content: str = ""
+
+
+class ResourceUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+
+
+class PermissionGrant(BaseModel):
+    login: str
+    can_read: bool = False
+    can_update: bool = False
+    can_delete: bool = False
