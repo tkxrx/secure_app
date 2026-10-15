@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta, timezone
+
+import jwt
 from argon2 import PasswordHasher, Type
 from argon2.exceptions import VerificationError
 
@@ -23,3 +26,16 @@ def verify_password(password, password_hash):
         return ph.verify(password_hash, password)
     except VerificationError:
         return False
+
+
+def create_token(user_id):
+    exp = datetime.now(timezone.utc) + timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
+    return jwt.encode({"sub": str(user_id), "exp": exp}, settings.SECRET_KEY, algorithm="HS256")
+
+
+def decode_token(token):
+    try:
+        data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        return int(data["sub"])
+    except Exception:
+        return None

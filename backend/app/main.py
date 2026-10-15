@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import User
-from app.schemas import UserCreate
-from app.security import hash_password
+from app.schemas import LoginData, UserCreate
+from app.security import create_token, decode_token, hash_password, verify_password
 
 logging.basicConfig(
     level=logging.INFO,
@@ -55,3 +55,28 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 
     logger.info("event=register_ok login=%s user_id=%s", user.login, user.id)
     return {"message": "user создан"}
+
+
+@app.post("/api/login")
+def login(data: LoginData, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.login == data.login).first()
+    if not user or not verify_password(data.password, user.password_hash):
+        logger.info("event=login_failed login=%s", data.login)
+        raise HTTPException(status_code=401, detail="неверный логин или пароль")
+    logger.info("event=login_ok user_id=%s", user.id)
+    return {"access_token": create_token(user.id), "token_type": "bearer"}
+
+
+def get_current_user(authorization: str = Header(default=""), db: Session = Depends(get_db)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="нужно войти")
+    user_id = decode_token(authorization[7:])
+    user = db.get(User, user_id) if user_id else None
+    if not user:
+        raise HTTPException(status_code=401, detail="нужно войти")
+    return user
+
+
+@app.get("/api/me")
+def me(user: User = Depends(get_current_user)):
+    return {"id": user.id, "login": user.login}
