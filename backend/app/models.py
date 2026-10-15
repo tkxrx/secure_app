@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 
 from app.database import Base
 
@@ -12,3 +12,25 @@ class User(Base):
     login = Column(String(32), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class Resource(Base):
+    __tablename__ = "resources"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(100), nullable=False)
+    content = Column(Text, nullable=False, default="")
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ResourcePermission(Base):
+    __tablename__ = "resource_permissions"
+    __table_args__ = (UniqueConstraint("user_id", "resource_id"),)
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    resource_id = Column(Integer, ForeignKey("resources.id", ondelete="CASCADE"), nullable=False)
+    can_read = Column(Boolean, default=False, nullable=False)
+    can_update = Column(Boolean, default=False, nullable=False)
+    can_delete = Column(Boolean, default=False, nullable=False)
