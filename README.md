@@ -13,7 +13,7 @@
 docker compose up --build
 ```
 
-- фронтенд: http://localhost:8080
+- фронтенд: http://localhost:3000
 - бэкенд: http://localhost:8000 (документация API http://localhost:8000/docs)
 
 Миграции применяются автоматически при старте бэкенда.
