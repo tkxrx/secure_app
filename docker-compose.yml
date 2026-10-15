@@ -7,6 +7,10 @@ services:
       POSTGRES_DB: secure_app
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 10
 
   backend:
     build: ./backend
@@ -22,7 +26,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
