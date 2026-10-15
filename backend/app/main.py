@@ -162,7 +162,7 @@ def update_resource(
 
 @app.delete("/api/resources/{resource_id}")
 def delete_resource(resource_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    resource = check_access(db, user, resource_id, "update")
+    resource = check_access(db, user, resource_id, "delete")
     db.query(ResourcePermission).filter(ResourcePermission.resource_id == resource_id).delete()
     db.delete(resource)
     db.commit()
