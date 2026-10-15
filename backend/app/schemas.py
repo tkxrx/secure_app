@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
     @classmethod
     def check_login(cls, v):
         if len(v) < 3 or len(v) > 32:
-            raise ValueError("логин должен быть от 3 до 32 симовлов")
+            raise ValueError("логин должен быть от 3 до 32 символов")
         if not re.fullmatch(r"[A-Za-z0-9._-]+", v):
             raise ValueError("логин может содержать только латинские буквы, цифры, точку, _ и -")
         return v
