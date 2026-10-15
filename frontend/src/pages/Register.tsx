@@ -32,6 +32,9 @@ export default function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <small>
+          Пароль: от 8 символов, заглавная и строчная буква, цифра, спецсимвол
+        </small>
         <button type="submit">Зарегистрироваться</button>
       </form>
       {message && <p className="success">{message}</p>}
