@@ -94,6 +94,24 @@ export default function Resources() {
     }
   }
 
+  async function grant(e: React.FormEvent) {
+    e.preventDefault()
+    if (!selected) return
+    clear()
+    try {
+      const data = await request('POST', '/api/resources/' + selected.id + '/permissions', {
+        login: grantLogin,
+        can_read: canRead,
+        can_update: canUpdate,
+        can_delete: canDelete,
+      })
+      setMessage(data.message)
+      setGrantLogin('')
+    } catch (err: any) {
+      setError(err.message)
+    }
+  }
+
   if (!localStorage.getItem('token')) {
     return <p>Сначала войдите в систему.</p>
   }
@@ -139,6 +157,22 @@ export default function Resources() {
             <button onClick={save}>Сохранить</button> <button onClick={remove}>Удалить</button>
           </div>
 
+          {selected.owner === me && (
+            <form onSubmit={grant} className="grant">
+              <h4>Выдать права</h4>
+              <input placeholder="Логин пользователя" value={grantLogin} onChange={(e) => setGrantLogin(e.target.value)} />
+              <label>
+                <input type="checkbox" checked={canRead} onChange={(e) => setCanRead(e.target.checked)} /> чтение
+              </label>
+              <label>
+                <input type="checkbox" checked={canUpdate} onChange={(e) => setCanUpdate(e.target.checked)} /> изменение
+              </label>
+              <label>
+                <input type="checkbox" checked={canDelete} onChange={(e) => setCanDelete(e.target.checked)} /> удаление
+              </label>
+              <button type="submit">Выдать</button>
+            </form>
+          )}
         </div>
       )}
 

@@ -73,3 +73,13 @@ td {
 .error {
   color: #c00;
 }
+
+.grant {
+  margin-top: 15px;
+}
+
+.grant label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
